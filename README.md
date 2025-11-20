@@ -63,6 +63,31 @@ Notas y recomendaciones
 - Si deseas publicar sólo el frontend, puedes usar GitHub Pages (sitio estático). Para usar el backend en producción considera una plataforma como Heroku, Render o Vercel (con configuración para Node).
 - Si necesitas manejar imágenes grandes en Git, considera Git LFS.
 
+MongoDB (opcional)
+
+Este backend puede usar un archivo JSON (por defecto) o conectarse a una base de datos MongoDB si defines la variable de entorno `MONGO_URI`.
+
+Opciones para usar MongoDB:
+- Usar MongoDB Atlas (nube): crea una cuenta en https://www.mongodb.com/cloud/atlas, crea un cluster y copia la cadena de conexión.
+- Usar MongoDB local: instala MongoDB Community y usa una URI como `mongodb://localhost:27017/mi_base_de_datos`.
+
+Cómo configurar (en local):
+1. Copia `backend/.env.example` a `backend/.env` y rellena `MONGO_URI`.
+2. Desde la carpeta `backend` instala dependencias:
+
+```powershell
+cd 'C:\Users\Valentina\Downloads\pagina\backend'
+npm install
+```
+
+3. Ejecuta el servidor:
+
+```powershell
+npm run start
+```
+
+Si `MONGO_URI` está definida el servidor intentará conectarse a Mongo y usará la colección `products`. Si no está definida, seguirá usando `backend/data/products.json` como antes.
+
 Licencia
 - MIT (revisa `backend/package.json` que tiene `license: MIT`).
 

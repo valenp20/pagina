@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const cors = require('cors');
 const fs = require('fs');
+const mongoose = require('mongoose');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -13,8 +14,12 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(staticRoot));
 
-// Archivo de productos dentro de backend/data
+// Archivo de productos dentro de backend/data (fallback si no hay Mongo)
 const PRODUCTS_FILE = path.join(__dirname, 'data', 'products.json');
+
+// Intentaremos usar MongoDB si se proporciona MONGO_URI en env
+const MONGO_URI = process.env.MONGO_URI || process.env.DB_URI || null;
+let ProductModel = null;
 
 function readProducts() {
   try {
@@ -36,27 +41,62 @@ function writeProducts(products) {
   }
 }
 
-app.get('/api/products', (req, res) => {
+async function initMongo() {
+  if (!MONGO_URI) return false;
+  try {
+    await mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+    console.log('Conectado a MongoDB');
+    ProductModel = require(path.join(__dirname, 'models', 'product'));
+    return true;
+  } catch (err) {
+    console.error('No se pudo conectar a MongoDB:', err.message || err);
+    return false;
+  }
+}
+
+// Endpoints: si hay Mongo, trabajamos con la colección; si no, usamos el archivo JSON
+
+app.get('/api/products', async (req, res) => {
+  if (ProductModel) {
+    const docs = await ProductModel.find().lean().exec();
+    return res.json(docs);
+  }
   const products = readProducts();
   res.json(products);
 });
 
-app.get('/api/products/:id', (req, res) => {
+app.get('/api/products/:id', async (req, res) => {
+  const id = req.params.id;
+  if (ProductModel) {
+    // Intentar buscar por campo `id` numérico o por _id
+    let doc = await ProductModel.findOne({ $or: [{ id: Number(id) }, { _id: id }] }).lean().exec();
+    if (!doc) return res.status(404).json({ error: 'Producto no encontrado' });
+    return res.json(doc);
+  }
   const products = readProducts();
-  const product = products.find(p => String(p.id) === String(req.params.id));
+  const product = products.find(p => String(p.id) === String(id));
   if (!product) return res.status(404).json({ error: 'Producto no encontrado' });
   res.json(product);
 });
 
-// Agregar un nuevo producto (se guarda en backend/data/products.json)
-app.post('/api/products', (req, res) => {
-  const products = readProducts();
+app.post('/api/products', async (req, res) => {
   const { name, price, image, discount, category, weeklyOffer } = req.body || {};
 
   if (!name || price === undefined) {
     return res.status(400).json({ error: 'Los campos "name" y "price" son obligatorios' });
   }
 
+  if (ProductModel) {
+    try {
+      const created = await ProductModel.create({ name, price, image, discount, category, weeklyOffer });
+      return res.status(201).json(created);
+    } catch (err) {
+      console.error('Error creando producto (mongo):', err);
+      return res.status(500).json({ error: 'No se pudo guardar el producto' });
+    }
+  }
+
+  const products = readProducts();
   const nextId = products.reduce((max, p) => Math.max(max, p.id || 0), 0) + 1;
   const newProduct = {
     id: nextId,
@@ -75,15 +115,28 @@ app.post('/api/products', (req, res) => {
   res.status(201).json(newProduct);
 });
 
-// Actualizar un producto existente (PUT parcial)
-app.put('/api/products/:id', (req, res) => {
+app.put('/api/products/:id', async (req, res) => {
+  const id = req.params.id;
+  if (ProductModel) {
+    try {
+      const body = req.body || {};
+      const fields = ['name', 'price', 'image', 'discount', 'category', 'weeklyOffer'];
+      const update = {};
+      fields.forEach(f => { if (body[f] !== undefined) update[f] = body[f]; });
+      let doc = await ProductModel.findOneAndUpdate({ $or: [{ id: Number(id) }, { _id: id }] }, update, { new: true }).lean().exec();
+      if (!doc) return res.status(404).json({ error: 'Producto no encontrado' });
+      return res.json(doc);
+    } catch (err) {
+      console.error('Error actualizando producto (mongo):', err);
+      return res.status(500).json({ error: 'No se pudo guardar el producto' });
+    }
+  }
+
   const products = readProducts();
-  const id = String(req.params.id);
-  const idx = products.findIndex(p => String(p.id) === id);
+  const idx = products.findIndex(p => String(p.id) === String(id));
   if (idx === -1) return res.status(404).json({ error: 'Producto no encontrado' });
 
   const body = req.body || {};
-  // Campos permitidos para actualizar
   const fields = ['name', 'price', 'image', 'discount', 'category', 'weeklyOffer'];
   fields.forEach(f => {
     if (body[f] !== undefined) {
@@ -103,6 +156,11 @@ app.put('/api/products/:id', (req, res) => {
   res.json(products[idx]);
 });
 
-app.listen(PORT, () => {
-  console.log(`Servidor (backend) escuchando en http://localhost:${PORT}`);
-});
+// Iniciar servidor: primero intentar conectar a Mongo si se configuró
+(async () => {
+  const mongoOk = await initMongo();
+  app.listen(PORT, () => {
+    console.log(`Servidor (backend) escuchando en http://localhost:${PORT}`);
+    if (!mongoOk) console.log('MongoDB no configurado. Usando archivo JSON en backend/data/products.json');
+  });
+})();
