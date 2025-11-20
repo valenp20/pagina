@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "name": "Frutas & Vegetales",
+    "price": 80.99,
+    "image": "IMG1.jfif",
+    "category": "Ofertas",
+    "weeklyOffer": true
+  },
+  {
+    "id": 2,
+    "name": "Lácteos & Huevos",
+    "price": 120.5,
+    "image": "img22.png",
+    "discount": 15,
+    "category": "Ofertas",
+    "weeklyOffer": true
+  },
+  {
+    "id": 3,
+    "name": "Carnes & Pescados",
+    "price": 150,
+    "image": "carnes.jpg",
+    "discount": 10,
+     "category": "Ofertas",
+    "weeklyOffer": true
+  },
+  {
+    "id": 4,
+    "name": "Panadería",
+    "price": 45,
+    "image": "pan.jpg",
+    "discount": 20,
+    "category": "Ofertas",
+    "weeklyOffer": true
+  },
+  {
+    "id": 5,
+    "name": "Galletas Clásicas",
+    "price": 60,
+    "image": "galletas.jpg",
+    "category": "Despensa"
+  },
+  {
+    "id": 6,
+    "name": "Galletas",
+    "price": 60,
+    "image": "galletas.jpg",
+    "discount": 5,
+    "category": "ofertas",
+    "weeklyOffer": true
+  },
+  {
+    "id": 7,
+    "name": "Jugo Natural",
+    "price": 30,
+    "image": "jugo.jpg",
+    "discount": 15,
+    "category": "Ofertas",
+    "weeklyOffer": true
+  }
+]

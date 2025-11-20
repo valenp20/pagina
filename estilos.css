@@ -1,0 +1,328 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+     margin: 0 ;
+    padding: 0;
+    background-color: #f38405;
+    color: #333;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Header */
+.main-header {
+    background-color: #fff;
+    border-bottom: 1px solid #ddd;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 5%;
+    background-color: #e8e8e8;
+    font-size: 0.8em;
+}
+
+.header-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 5%;
+}
+
+.logo {
+    font-weight: bold;
+    font-size: 1.5em;
+    color: #28a745;
+}
+
+.search-bar {
+    display: flex;
+    flex-grow: 1;
+    margin: 0 20px;
+    max-width: 600px;
+}
+
+.search-bar input {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #f38405;
+    border-radius: 25px;
+    outline: none;
+}
+
+.search-bar button {
+    background-color: #f38405;
+    color: #fff;
+    border: none;
+    border-radius: 25px;
+    padding: 10px 15px;
+    margin-left: -40px;
+    cursor: pointer;
+}
+
+.user-icons {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.icon-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 0.8em;
+}
+
+.icon-link img {
+    width: 30px;
+    height: 30px;
+}
+
+.cart-icon {
+    position: relative;
+}
+
+.cart-count {
+    position: absolute;
+    top: -5px;
+    right: -10px;
+    background-color: #dc3545;
+    color: #fff;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 0.7em;
+}
+
+/* Navegación */
+.main-nav {
+    background-color: #fff;
+    border-bottom: 1px solid #ddd;
+    padding: 10px 5%;
+}
+
+.nav-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: space-around;
+}
+
+/* Botón toggle para navegación responsive */
+.nav-toggle {
+    display: none;
+    background: transparent;
+    border: none;
+    font-size: 1.6rem;
+    cursor: pointer;
+}
+
+/* Responsive: ocultar links y mostrar toggle en pantallas pequeñas */
+@media (max-width: 800px) {
+    .nav-toggle { display: inline-block; }
+    .nav-links {
+        display: none; /* hidden by default on mobile */
+        flex-direction: column;
+        gap: 0;
+        background: #fff;
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 60px; /* bajo el header */
+        padding: 10px 5%;
+        border-bottom: 1px solid #ddd;
+        z-index: 1000;
+    }
+    .nav-links li { padding: 10px 0; text-align: left; }
+    .nav-links.open { display: flex; }
+}
+
+.nav-links li a {
+    font-weight: bold;
+    color: #555;
+}
+
+/* Estilo para item de navegación activo */
+.nav-links li a.active {
+    color: #f38405;
+    text-decoration: underline;
+}
+
+/* Contenido Principal */
+.main-content {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 0 20px;
+}
+
+/* Secciones de Productos */
+.weeklyOffer, .featured-products {
+    margin-bottom: 40px;
+    margin-left: 20px;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.8em;
+}
+
+.product-carousel {
+    display: flex;
+    overflow-x: auto;
+    gap: 20px;
+    padding-bottom: 7px;
+}
+
+.producto {
+    min-width: 250px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    text-align: center;
+    position: relative;
+}
+
+.producto img {
+    width: 90%;
+    height: auto;
+    border-radius: 5px;
+    width: 180px;
+    height: 130px;
+
+}
+
+.discount-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: #dc3545;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.8em;
+}
+
+.btn-secondary {
+    background-color: #152becbf;
+    color: #fff;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.products-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    
+}
+
+.section-column {
+    flex: 1;
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    
+}
+.service-block{
+    margin-left: 20px;
+}
+
+.metodos{
+    margin-left: 20px;
+}
+
+
+/* Footer */
+.main-footer {
+    background-color: #152becbf;
+    color: #fff;
+    padding: 20px 5%;
+    text-align: center;
+}
+
+.footer-links, .footer-social {
+
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 10px;
+}
+
+/* Banner de noticias (scroll tipo marquee) */
+.news-banner {
+    background: linear-gradient(90deg, #f38405, #ffb86b);
+    color: #fff;
+    overflow: hidden;
+    white-space: nowrap;
+    border-radius: 6px;
+    margin: 16px 20px;
+    padding: 8px 0;
+}
+.news-track {
+    display: inline-block;
+    padding-left: 2%; /* pequeño offset */
+    animation: marquee 18s linear infinite;
+}
+.banner-btn { display: none; }
+.news-banner {
+    display:flex;
+    align-items:center;
+}
+.banner-btn:focus { outline: 2px solid rgba(255,255,255,0.5); }
+.news-item {
+    display: inline-block;
+    margin-right: 48px;
+    font-weight: 600;
+}
+
+.news-item {
+    display: inline-block;
+    margin-right: 36px;
+    font-weight: 600;
+    vertical-align: middle;
+}
+.news-item img {
+    width: 140px;
+    height: 100px;
+    object-fit: cover;
+    display: inline-block;
+    vertical-align: middle;
+    border-radius: 8px;
+    margin-right: 12px;
+}
+
+@keyframes marquee {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-100%); }
+}
+
+/* Pausa de animación al hover */
+.news-banner:hover .news-track {
+    animation-play-state: paused;
+}
+
+/* Ajustes responsive */
+@media (max-width: 600px) {
+    .news-track { animation-duration: 28s; }
+    .news-item { margin-right: 20px; font-size: 0.95rem; }
+    .news-item img { width: 110px; height: 80px; }
+    .producto { min-width: 160px; }
+}
+
+/* Indicadores (dots) para el banner */
+.news-banner{ position: relative; }
+/* indicadores y botones eliminados del DOM; estilos removidos */
+
+/* Indicadores removidos por petición del usuario */
+
+/* Overlay/Indicadores eliminados */

@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Página</title>
+    <link rel="stylesheet" href="estilos.css"> 
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="header-top">
+            <div class="header-actions">
+                <a href="#">Ayuda</a>
+                <a href="#">Iniciar Sesión / Registrarse</a>
+            </div>
+        </div>
+        <div class="header-main">
+            <div class="logo">
+                <a href="#"><img src="logo marca.png" width="200" height="150" alt="Logo"></a>
+            </div>
+            <div class="search-bar">
+                <input type="text" placeholder="Busca productos, marcas o categorías...">
+                <button type="submit">🔍</button>
+            </div>
+            <div class="user-icons">
+                <a href="#" class="icon-link"><img src="usuario.png" width="10" height="10" alt="Mi Cuenta"></a>
+                <a href="#" class="icon-link"><img src="favoritos.png" width="10" height="10" alt="Favoritos"></a>
+                <a href="#" class="icon-link cart-icon">
+                    <img src="Carrito.png" width="10" height="10" alt="Carrito">
+                    <span class="cart-count">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <nav class="main-nav">
+        <button class="nav-toggle" id="nav-toggle" aria-controls="nav-links" aria-expanded="false">☰</button>
+        <ul class="nav-links" id="nav-links">
+            <li><a href="#" data-category="All">Todos</a></li>
+            <li><a href="#" data-category="Ofertas">Ofertas</a></li>
+            <li><a href="#" data-category="Frutas">Frutas & Vegetales</a></li>
+            <li><a href="#" data-category="Lácteos">Lácteos & Huevos</a></li>
+            <li><a href="#" data-category="Carnes">Carnes & Pescados</a></li>
+            <li><a href="#" data-category="Despensa">Despensa</a></li>
+            <li><a href="#" data-category="Bebidas">Bebidas</a></li>
+            <li><a href="#" data-category="Hogar">Hogar</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <!-- Banner de noticias/scroll (las items pueden incluir imagen + texto) -->
+        <div class="news-banner" id="news-banner" aria-live="polite">
+            <div class="news-track" id="news-track">
+                <!-- Contenido cargado dinámicamente: si la API /api/products está disponible, usará las imágenes de productos; si no, mostrará mensajes estáticos. -->
+                <div class="news-item" data-static="true">Envíos gratis en compras mayores a $50</div>
+                <div class="news-item" data-static="true">Descuento 10% en tu primera compra</div>
+                <div class="news-item" data-static="true">Nuevo: sección orgánicos con ofertas diarias</div>
+            </div>
+        </div>
+
+        <section class="weeklyOffer">
+            <h2>Ofertas Semanales</h2>
+            <div class="product-carousel" id="product-carousel">
+                <!-- Productos cargados dinámicamente desde /api/products -->
+            </div>
+        </section>
+
+        <section class="featured-products">
+            <div class="products-container">
+                <div class="section-column most-purchased">
+                    <h2>Promociones</h2>
+                </div>
+                <div class="section-column new-arrivals">
+                    <h2>Novedades</h2>
+                </div>
+            </div>
+        </section>
+
+        <section class="servicios adicionales">
+            <div class="service-block">
+                <h3>Contacto</h3>
+                <p>Dirección, teléfono, etc.</p>
+            </div>
+            <div class="metodos">
+                <h3>Métodos de Pago</h3>
+                <p>Logos de Visa, Mastercard, etc.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="main-footer">
+        <div class="footer-links">
+            <a href="#">Acerca de nosotros</a>
+            <a href="#">FAQ</a>
+            <a href="#">Política de Privacidad</a>
+        </div>
+        <div class="footer-social">
+            <a href="#">Facebook</a>
+            <a href="#">Instagram</a>
+            <a href="#">Twitter</a>
+        </div>
+    </footer>
+
+    <script>
+        async function loadProducts() {
+            try {
+                const res = await fetch('/api/products');
+                if (!res.ok) throw new Error('Error al obtener productos');
+                const products = await res.json();
+                const container = document.getElementById('product-carousel');
+                container.innerHTML = '';
+                products.forEach(p => {
+                    const div = document.createElement('div');
+                    div.className = 'producto';
+
+                    const img = document.createElement('img');
+                    img.src = p.image;
+                    img.alt = p.name;
+                    img.width = 50;
+                    img.height = 50;
+
+                    const badge = document.createElement('div');
+                    badge.className = 'discount-badge';
+                    badge.textContent = p.discount ? `-${p.discount}%` : '';
+
+                    const h3 = document.createElement('h3');
+                    h3.textContent = p.name;
+
+                    const pPrice = document.createElement('p');
+                    pPrice.textContent = `$${p.price.toFixed(2)}`;
+
+                    div.appendChild(img);
+                    if (p.discount) div.appendChild(badge);
+                    div.appendChild(h3);
+                    div.appendChild(pPrice);
+
+                        container.appendChild(div);
+                });
+            } catch (err) {
+                console.error(err);
+                const container = document.getElementById('product-carousel');
+                container.innerHTML = '<p>No se pudieron cargar los productos.</p>';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadProducts);
+    </script>
+
+        <script>
+            // Filtrado por categoría en la UI
+            (function(){
+                const container = document.getElementById('product-carousel');
+                const nav = document.getElementById('nav-links');
+                let allProducts = [];
+
+                // Renderizar productos (limpio y relleno)
+                function renderProducts(products){
+                    container.innerHTML = '';
+                    if (!products || products.length === 0) {
+                        container.innerHTML = '<p>No hay productos para mostrar.</p>';
+                        return;
+                    }
+                    products.forEach(p => {
+                        const div = document.createElement('div');
+                        div.className = 'producto';
+
+                        const img = document.createElement('img');
+                        img.src = p.image || '';
+                        img.alt = p.name || '';
+                        img.width = 50;
+                        img.height = 50;
+
+                        const badge = document.createElement('div');
+                        badge.className = 'discount-badge';
+                        badge.textContent = p.discount ? `-${p.discount}%` : '';
+
+                        const h3 = document.createElement('h3');
+                        h3.textContent = p.name;
+
+                        const pPrice = document.createElement('p');
+                        pPrice.textContent = `$${Number(p.price).toFixed(2)}`;
+
+                        div.appendChild(img);
+                        if (p.discount) div.appendChild(badge);
+                        div.appendChild(h3);
+                        div.appendChild(pPrice);
+
+                        container.appendChild(div);
+                    });
+                }
+
+                // Cargar productos desde API y guardar en memoria
+                async function fetchAllProducts(){
+                    try{
+                        const res = await fetch('/api/products');
+                        if (!res.ok) throw new Error('Error al obtener productos');
+                        allProducts = await res.json();
+                        renderProducts(allProducts);
+                    }catch(e){
+                        console.error(e);
+                        container.innerHTML = '<p>No se pudieron cargar los productos.</p>';
+                    }
+                }
+
+                // Mostrar por categoría. 'Ofertas' = discount>0 o weeklyOffer true
+                function showCategory(cat){
+                    // normalizar
+                    if (!cat || cat === 'All') { renderProducts(allProducts); return; }
+                    if (cat === 'Ofertas'){
+                        // Mostrar solo productos marcados explícitamente como oferta semanal
+                        const filtered = allProducts.filter(p => p.weeklyOffer === true);
+                        renderProducts(filtered);
+                        return;
+                    }
+                    const filtered = allProducts.filter(p => String(p.category).toLowerCase() === String(cat).toLowerCase());
+                    renderProducts(filtered);
+                }
+
+                // Añadir listeners a los enlaces de navegación
+                function initNavFilters(){
+                    if (!nav) return;
+                    const links = Array.from(nav.querySelectorAll('a[data-category]'));
+                    links.forEach(a => {
+                        a.addEventListener('click', (e)=>{
+                            e.preventDefault();
+                            const cat = a.dataset.category;
+                            // marcar activo
+                            links.forEach(x=>x.classList.remove('active'));
+                            a.classList.add('active');
+                            showCategory(cat);
+                        });
+                    });
+                }
+
+                // Inicialización
+                document.addEventListener('DOMContentLoaded', ()=>{
+                    initNavFilters();
+                    // Cargar productos y, cuando termine, seleccionar el filtro activo (por defecto 'Todos')
+                    fetchAllProducts().then(()=>{
+                        const active = nav.querySelector('a.active') || nav.querySelector('a[data-category="All"]') || nav.querySelector('a');
+                        if (active) {
+                            nav.querySelectorAll('a').forEach(x=>x.classList.remove('active'));
+                            active.classList.add('active');
+                            showCategory(active.dataset.category);
+                        }
+                    });
+                });
+            })();
+        </script>
+
+    <script>
+        // Toggle de navegación responsive
+        (function(){
+            const toggle = document.getElementById('nav-toggle');
+            const nav = document.getElementById('nav-links');
+            if (!toggle || !nav) return;
+
+            function setExpanded(val){
+                toggle.setAttribute('aria-expanded', String(val));
+                if (val) nav.classList.add('open'); else nav.classList.remove('open');
+            }
+
+            toggle.addEventListener('click', ()=>{
+                const expanded = toggle.getAttribute('aria-expanded') === 'true';
+                setExpanded(!expanded);
+            });
+
+            // Close menu when a link is clicked (useful on mobile)
+            nav.addEventListener('click', (e)=>{
+                if (e.target.tagName === 'A') setExpanded(false);
+            });
+
+            // Close when clicking outside
+            document.addEventListener('click', (e)=>{
+                const isClickInside = nav.contains(e.target) || toggle.contains(e.target);
+                if (!isClickInside) setExpanded(false);
+            });
+
+            // Keyboard: toggle with Enter/Space
+            toggle.addEventListener('keydown', (e)=>{
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggle.click();
+                }
+            });
+        })();
+    </script>
+
+    <script>
+        // Banner: permitir pausa en touch y cargar dinámicamente items (opcional)
+        (function(){
+            const track = document.getElementById('news-track');
+            if (!track) return;
+
+            // Toggle pause on touch/click for mobile devices
+            let paused = false;
+            const toggle = () => {
+                paused = !paused;
+                track.style.animationPlayState = paused ? 'paused' : 'running';
+            };
+
+            track.addEventListener('click', toggle);
+            track.addEventListener('touchstart', function(e){
+                e.preventDefault();
+                toggle();
+            });
+
+            // Ejemplo: cargar items desde la API (opcional)
+            async function loadNewsItems(){
+                try{
+                    // Intentar cargar productos y usar sus imágenes/texto para el banner
+                    const res = await fetch('/api/products');
+                    if (!res.ok) throw new Error('no products');
+                    const products = await res.json();
+                    if (!products || products.length === 0) return;
+
+                    // Tomar hasta 4 productos para el banner
+                    const items = products.slice(0, 4).map(p => {
+                        const img = `<img src="${p.image}" alt="${p.name}"/>`;
+                        const caption = `<div class="caption">${p.name} - $${Number(p.price).toFixed(2)}</div>`;
+                        return `<div class="news-item">${img}${caption}</div>`;
+                    });
+
+                    // Si hay menos de 4 items, añadir mensajes estáticos hasta 4
+                    const fallbacks = [
+                        `<div class="news-item">Promociones exclusivas esta semana</div>`,
+                        `<div class="news-item">Entrega rápida en tu zona</div>`,
+                    ];
+                    while (items.length < 4 && fallbacks.length) items.push(fallbacks.shift());
+
+                    // Duplicar la secuencia para que el scroll sea continuo
+                    track.innerHTML = items.join('') + items.join('');
+                }catch(err){
+                    console.warn('No se pudieron cargar noticias dinámicas', err);
+                }
+            }
+            loadNewsItems().then(()=> {
+                // inicializar auto-scroll y controles después de cargar items
+                initBannerAutoScroll();
+            }).catch(()=>{
+                initBannerAutoScroll();
+            });
+            
+        })();
+        
+        // Inicializa auto-scroll y el comportamiento Prev/Next
+        function initBannerAutoScroll(){
+            const banner = document.getElementById('news-banner');
+            const track = document.getElementById('news-track');
+            const indicators = null; // indicadores y botones eliminados por petición
+            if (!banner || !track) return;
+
+            // Capturar HTML y número de items originales
+            const originalChildren = Array.from(track.children);
+            const originalCount = originalChildren.length || 0;
+            const originalHTML = originalChildren.map(n => n.outerHTML).join('');
+
+            // Duplicar contenido si no está duplicado aún
+            if (originalCount > 0 && !track.dataset.duplicated){
+                track.innerHTML = originalHTML + originalHTML;
+                track.dataset.duplicated = '1';
+            }
+
+            // Esperar layout para calcular offsets
+            requestAnimationFrame(()=>{
+                const children = Array.from(track.children);
+                const halfWidth = track.scrollWidth / 2;
+
+                // Calcular offsets de cada item en la primera mitad
+                const offsets = [];
+                let acc = 0;
+                for (let i=0;i<originalCount;i++){
+                    const el = children[i];
+                    offsets.push(acc);
+                    const style = getComputedStyle(el);
+                    const mr = parseFloat(style.marginRight) || 0;
+                    acc += el.offsetWidth + mr;
+                }
+
+                // Indicadores y botones fueron removidos — solo auto-scroll y touch
+
+                // Establecer estilos track
+                track.style.display = 'flex';
+                track.style.alignItems = 'center';
+
+                let paused = false;
+                let manual = false;
+                const speed = 0.01; // px per ms (más lento)
+
+                // Pausar al hover sobre banner
+                banner.addEventListener('mouseenter', ()=> paused = true);
+                banner.addEventListener('mouseleave', ()=> paused = false);
+
+                // Función para actualizar indicador activo según scroll
+                function updateActiveIndicator(){ /* ya no hay indicadores */ }
+
+                // Smooth scroll to absolute position
+                function smoothScrollTo(targetX, duration=600){
+                    manual = true;
+                    const start = banner.scrollLeft;
+                    const t0 = performance.now();
+                    function anim(t){
+                        const p = Math.min(1, (t - t0) / duration);
+                        const eased = 0.5 - Math.cos(p * Math.PI) / 2;
+                        banner.scrollLeft = start + (targetX - start) * eased;
+                        if (p < 1) requestAnimationFrame(anim);
+                        else { manual = false; }
+                    }
+                    requestAnimationFrame(anim);
+                }
+
+                function goToIndex(i){
+                    const base = Math.floor(banner.scrollLeft / halfWidth) * halfWidth;
+                    const target = base + offsets[i];
+                    // Normalizar target para que quede dentro del rango
+                    smoothScrollTo(target);
+                }
+
+                // Auto-scroll loop
+                let last = null;
+                function step(ts){
+                    if (last === null) last = ts;
+                    const delta = ts - last;
+                    last = ts;
+                    if (!paused && !manual){
+                        banner.scrollLeft += speed * delta;
+                        if (banner.scrollLeft >= halfWidth) banner.scrollLeft -= halfWidth;
+                    }
+                    updateActiveIndicator();
+                    requestAnimationFrame(step);
+                }
+                requestAnimationFrame(step);
+
+                // Prev/Next removed by user request
+
+                // Touch drag
+                let touchStartX = 0;
+                let scrolling = false;
+                banner.addEventListener('touchstart', (e)=>{
+                    paused = true;
+                    touchStartX = e.touches[0].clientX;
+                    scrolling = true;
+                }, {passive:true});
+                banner.addEventListener('touchmove', (e)=>{
+                    if (!scrolling) return;
+                    const dx = touchStartX - e.touches[0].clientX;
+                    banner.scrollLeft += dx;
+                    touchStartX = e.touches[0].clientX;
+                }, {passive:true});
+                banner.addEventListener('touchend', ()=>{ scrolling = false; setTimeout(()=> paused = false, 600); });
+            });
+        }
+    </script>
+
+</body>
+</html>

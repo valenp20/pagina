@@ -1,0 +1,11 @@
+node_modules/
+npm-debug.log
+package-lock.json
+.env
+.DS_Store
+# imágenes/archivos binarios grandes
+*.png
+*.jpg
+*.jpeg
+*.jfif
+*.gif
